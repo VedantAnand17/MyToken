@@ -3,9 +3,11 @@ pragma solidity ^0.8.0;
 
 contract Token {
     string public Name = "VedCoin";
+    string public Symbol = "VED";
     address public owner;
-    uint public totalSupply;
-    mapping (address => uint) public balances;
+    uint256 public totalSupplyValue;
+    mapping(address => uint256) public balances;
+    mapping(address => mapping(address => uint256)) public allowances;
 
     constructor() {
         owner = msg.sender;
@@ -16,29 +18,78 @@ contract Token {
         _;
     }
 
+    //name
+    function name() public view returns (string memory) {
+        return Name;
+    }
+
+    //symbol
+    function symbol() public view returns (string memory) {
+        return Symbol;
+    }
+
+    //totalSupply
+    function totalSupply() public view returns (uint256) {
+        return totalSupplyValue;
+    }
+
+    //account balance
+    function balanceOf(address _owner) public view returns (uint256 balance) {
+        return balances[_owner];
+    }
+
     //mint
-    function mint(uint _amount) public onlyOwner {
+    function mint(uint256 _amount) public onlyOwner {
         balances[owner] += _amount;
-        totalSupply += _amount;
+        totalSupplyValue += _amount;
     }
 
     //mintTo
-    function mintTo(uint _amount, address _mintTo) public onlyOwner {
+    function mintTo(uint256 _amount, address _mintTo) public onlyOwner {
         balances[_mintTo] += _amount;
-        totalSupply += _amount;
+        totalSupplyValue += _amount;
     }
 
     //transfer
-    function transfer(address _to, uint _amount) public {
-        require(balances[msg.sender] >= _amount, "Balance less than amount");
-        balances[msg.sender] -= _amount;
-        balances[_to] += _amount;
+    function transfer(address _to, uint256 _value)
+        public
+        returns (bool success)
+    {
+        require(balances[msg.sender] >= _value, "Balance less than amount");
+        balances[msg.sender] -= _value;
+        balances[_to] += _value;
+        return true;
     }
 
     //burn
-    function burn(uint _amount) public {
-        require(balances[msg.sender] >= _amount , "Not enough amount");
+    function burn(uint256 _amount) public {
+        require(balances[msg.sender] >= _amount, "Not enough amount");
         balances[msg.sender] -= _amount;
-        totalSupply -= _amount;
+        totalSupplyValue -= _amount;
+    }
+
+    //allowance
+    function approve(address _spender, uint256 _value)
+        public
+        returns (bool success)
+    {
+        require(balances[msg.sender] >= _value, "Not enough amount");
+        allowances[msg.sender][_spender] = _value;
+        return true;
+    }
+
+    //transferAllowance
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _value
+    ) public returns (bool success) {
+        uint256 allowance = allowances[_from][msg.sender];
+        require(allowance >= _value, "Not enough amount");
+        require(balances[msg.sender] >= _value);
+        balances[_to] += _value;
+        balances[_from] -= _value;
+        allowances[_from][msg.sender] -= _value;
+        return true;
     }
 }
