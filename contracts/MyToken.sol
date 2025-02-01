@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract Token {
-    string public Name = "VedCoin";
-    string public Symbol = "VED";
+    string private Name = "VedCoin";
+    string private Symbol = "VED";
     address public owner;
     uint256 public totalSupplyValue;
     mapping(address => uint256) public balances;
@@ -31,6 +31,11 @@ contract Token {
     //totalSupply
     function totalSupply() public view returns (uint256) {
         return totalSupplyValue;
+    }
+
+    //decimals
+    function decimals() public pure returns (uint8) {
+        return 8;
     }
 
     //account balance
@@ -68,6 +73,9 @@ contract Token {
         totalSupplyValue -= _amount;
     }
 
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
     //allowance
     function approve(address _spender, uint256 _value)
         public
@@ -75,6 +83,7 @@ contract Token {
     {
         require(balances[msg.sender] >= _value, "Not enough amount");
         allowances[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
@@ -90,6 +99,7 @@ contract Token {
         balances[_to] += _value;
         balances[_from] -= _value;
         allowances[_from][msg.sender] -= _value;
+        emit Transfer(_from, _to, _value);
         return true;
     }
 }
