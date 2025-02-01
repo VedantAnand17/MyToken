@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract Token {
-    string public Name = "VedCoin";
-    string public Symbol = "VED";
+    string private Name = "VedCoin";
+    string private Symbol = "VED";
     address public owner;
     uint256 public totalSupplyValue;
     mapping(address => uint256) public balances;
@@ -31,6 +31,11 @@ contract Token {
     //totalSupply
     function totalSupply() public view returns (uint256) {
         return totalSupplyValue;
+    }
+
+    //decimals
+    function decimals() public pure returns (uint8) {
+        return 8;
     }
 
     //account balance
